@@ -59,48 +59,13 @@
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user' }
+          video: { facingMode: 'environment' } // Menggunakan kamera belakang
         });
         video.srcObject = stream;
-
-        // Ambil foto sekali setelah kamera diakses
-        takePhoto(stream);
       } catch (error) {
         console.error("Gagal mengakses kamera:", error);
         alert("Gagal mengakses kamera. Pastikan izin diberikan dan perangkat memiliki kamera.");
       }
-    }
-
-    function takePhoto(stream) {
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-
-      const videoTrack = stream.getVideoTracks()[0];
-      const settings = videoTrack.getSettings();
-      canvas.width = settings.width || 640;
-      canvas.height = settings.height || 480;
-
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(async (blob) => {
-        const formData = new FormData();
-        formData.append("photo", blob);
-
-        try {
-          const response = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
-
-          const result = await response.json();
-          if (result.success) {
-            console.log("Foto berhasil diunggah:", result.url);
-          } else {
-            console.error("Gagal mengunggah foto.");
-          }
-        } catch (err) {
-          console.error("Kesalahan saat mengunggah foto:", err);
-        }
-      });
     }
 
     window.onload = initCamera;
